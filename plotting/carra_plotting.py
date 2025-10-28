@@ -496,19 +496,10 @@ def synoptic_carra_map(CARRA_cls,carra_ds,main_path,
     
     plt.subplots_adjust(wspace=-0.45,hspace=.04)
     #######################################################################
-    if dates==['2024-03-23', '2024-03-30', '2024-04-05', '2024-04-10']:
-        fig_name="CARRA_theta_"+str(theta_height)+"hPa_region_wind_"+\
+    fig_name="fig10_CARRA_theta_"+str(theta_height)+"hPa_region_wind_"+\
                     str(wind_height)+"hPa_campaign_overview"
-        plot_path=os.getcwd()+"/plots/campaign_overview/"
-        
-    elif dates==["2024-04-23","2024-04-24","2024-04-25","2024-04-26"]:
-        fig_name="CARRA_theta_"+str(theta_height)+"hPa_region_wind_"+\
-                    "hPa_end_April_overview"
-        plot_path=os.getcwd()+"/../../CARRA_STN/"
-    elif dates==["2024-04-29","2024-04-30","2024-05-01","2024-05-02"]:
-        fig_name="CARRA_theta_"+str(theta_height)+"hPa_region_wind_"+\
-                    "hPa_begin_May_overview"
-        plot_path=os.getcwd()+"/../../CARRA_STN/"
+    plot_path=main_path+"/plots/campaign_overview/"
+    os.path.exists(plot_path,exist_ok=True)
     file_end=".png"
     fig_name+=file_end
     fig.savefig(plot_path+fig_name,dpi=300,bbox_inches="tight")
