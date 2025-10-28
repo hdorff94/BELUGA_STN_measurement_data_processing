@@ -362,17 +362,16 @@ class BELUGA(Measurement_Platforms_STN):
                 # Omit encoding for non-numeric variables 
                 nc_encoding[var_name] = {}
         ds.time.encoding['units']      = "Seconds since 1970-01-01 00:00:00"
-        #ds["time"].attrs['units']      = "Seconds since 1970-01-01 00:00:00 UTC"
         ds.time.encoding["calendar"]   = "standard"
-        #self.logger.info("Start:"+str(ds.time.values[0])+"-- End:"+str(ds.time.values[-1]))
         ds.to_netcdf(outp_path+l2_fname,mode="w",engine="netcdf4",
                      encoding=nc_encoding)
         print("L2 data saved as:",outp_path+l2_fname)
         return outp_path+l2_fname
         
     def get_flight_information(self):
-        self.flight_infos=pd.read_csv(self.main_path+"flight_schedule.csv",
-                                      index_col="Flight No")
+        self.flight_infos=pd.read_csv(
+            self.main_path+"STN_BELUGA_flight_infos.csv",
+            index_col="Flight No")
         self.flight_infos["Start Time"]     = pd.to_datetime(
                 self.flight_infos["Start Time"], dayfirst=True)
         self.flight_infos["End Time"]       = pd.to_datetime(

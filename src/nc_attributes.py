@@ -141,11 +141,10 @@ TMP_turb_global_attributes={
     
     "processing_level": "PANGAEA data processing level 2",
     
-    "further_details": "This dataset complenents previous Arctic ABL BELUGA"+\
-        " observations described in Pilz et al., 2023;"+\
-        " https://doi.org/10.1038/s41597-023-02423-5 within the scope of the"+\
-        " MOSAIC campaign (Shupe et al., 2022;"+\
-        " https://doi.org/10.1525/elementa.2021.00060)",
+    "further_details": "This dataset complenents previous BELUGA turbulence observations"+\
+        " of the Arctic ABL described in Akansu et al., 2023;"+\
+        " https://doi.org/10.1038/s41597-023-02582-5) within the scope of the"+\
+        " MOSAIC campaign (Shupe et al., 2022; https://doi.org/10.1525/elementa.2021.00060)",
     
     "Conventions": "CF-1.12",
     
@@ -220,11 +219,12 @@ BP_global_attributes={
     "processing_date" :"change to actual date of processing.",
     
     "processing_level": "PANGAEA data processing level 2",
+    "further_details": "This dataset complenents previous Arctic ABL BELUGA"+\
+        " observations described in Pilz et al., 2023;"+\
+        " https://doi.org/10.1038/s41597-023-02423-5 within the scope of the"+\
+        " MOSAIC campaign (Shupe et al., 2022;"+\
+        " https://doi.org/10.1525/elementa.2021.00060)",
     
-    "further_details": "This dataset complenents previous BELUGA turbulence observations"+\
-        " of the Arctic ABL described in Akansu et al., 2023;"+\
-        " https://doi.org/10.1038/s41597-023-02582-5) within the scope of the"+\
-        " MOSAIC campaign (Shupe et al., 2022; https://doi.org/10.1525/elementa.2021.00060)",
     
     "Conventions" : "CF-1.12",
     

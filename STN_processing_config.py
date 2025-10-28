@@ -43,9 +43,9 @@ config_dict={
         ],
     
     # Instrument packages to be processed
-    "process_BP"        : False,
-    "process_TMP_met"   : False,
-    "process_TMP_turb"  : True,
+    "process_BP"        : True,
+    "process_TMP_met"   : True,
+    "process_TMP_turb"  : False,
     "process_radiosonde": False,
     # processing level (L1 in csv, L2 in nc)
     "run_l1_processing" : True,
