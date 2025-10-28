@@ -8,10 +8,6 @@ first quality checks/post-calibrations. L1-data is provided as csv. The L2-data 
  the barometric altitude as common altitude reference, a flight segmentation, and additional variables and attributes improving the emerging scientific analysis and data handling.
 During processing, logger files are created to deliver information of all conducted processing steps.
 
-### Meteorological data of the TMP_met
-
-### Thermal-infrared irradiances based on the broadband radiation probe (BP)
-
 ## Executing the processing
 The processing can be executed by the script
 ```python run_processing.py ```
