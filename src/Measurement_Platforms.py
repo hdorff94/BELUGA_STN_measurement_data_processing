@@ -38,25 +38,25 @@ import logging_processing
 
 
  
-class Measurement_Platforms_STN():
+class Measurement_Platforms_VRS():
     
     def __init__(self,main_path=os.getcwd()+"/../BELUGA_data/"):
-        self.station_name       = "Station_Nord"
-        self.coordinates        = STN_coords={"lat": 81.60250,"lon": -16.67,
+        self.station_name       = "Villum_Research_Station"
+        self.coordinates        = VRS_coords={"lat": 81.60250,"lon": -16.67,
                                               "height":31}
         self.main_path          = main_path
         
         print("Main path is:",main_path)
     def get_info(self):
         print("This is the class for ",self.station_name,
-              "with coordinates",self.STN_coords,
+              "with coordinates",self.VRS_coords,
               ". Data can be found under:", self.main_path)
 
-class BELUGA(Measurement_Platforms_STN):
-    def __init__(self, Measurement_Platforms_STN):
-        self.station_name       = Measurement_Platforms_STN.station_name        
-        self.coordinates        = Measurement_Platforms_STN.coordinates
-        self.main_path          = Measurement_Platforms_STN.main_path
+class BELUGA(Measurement_Platforms_VRS):
+    def __init__(self, Measurement_Platforms_VRS):
+        self.station_name       = Measurement_Platforms_VRS.station_name        
+        self.coordinates        = Measurement_Platforms_VRS.coordinates
+        self.main_path          = Measurement_Platforms_VRS.main_path
         self.flight_dates       = {
             "RF01":"20240324","RF02":"20240324","RF03":"20240325",
             "RF04":"20240325","RF05":"20240326","RF06":"20240326",
@@ -247,24 +247,24 @@ class BELUGA(Measurement_Platforms_STN):
         """
         return p_fit,p_tendency
     
-    def add_STN_georeferences(self,ds):
+    def add_VRS_georeferences(self,ds):
         
         ds["lat"]                           = self.coordinates["lat"]
         ds["lon"]                           = self.coordinates["lon"]
-        ds["STN_height"]                        = self.coordinates["height"]
+        ds["VRS_height"]                        = self.coordinates["height"]
         
         # add attributes based on CF-convention
         ds["lat"].attrs["standard_name"]    = "latitude"
-        ds["lat"].attrs["long_name"]        = "latitude Station Nord"
+        ds["lat"].attrs["long_name"]        = "latitude Villum Research Station"
         ds["lat"].attrs["units"]            = "degrees_north"
         
         ds["lon"].attrs["standard_name"]    = "longitude"
-        ds["lon"].attrs["long_name"]        = "longitude Station Nord"
+        ds["lon"].attrs["long_name"]        = "longitude Villum Research Station"
         ds["lon"].attrs["units"]            = "degrees_east"
         
         #ds["STN_height"].attrs["standard_name"] = "height"
-        ds["STN_height"].attrs["long_name"]     = "Station Nord height above mean sea level"
-        ds["STN_height"].attrs["units"]         = "m"
+        ds["VRS_height"].attrs["long_name"]     = "Station Nord height above mean sea level"
+        ds["VRS_height"].attrs["units"]         = "m"
         #self.logger.info("Georeference data of Station Nord added to Dataset")
         return ds 
     
@@ -347,7 +347,7 @@ class BELUGA(Measurement_Platforms_STN):
             outp_path=self.raw_data_path+"/../final_data/"
         
         os.makedirs(outp_path,exist_ok=True)
-        l2_fname="BELUGA_STN_L2_"+probe+"_"+self.flight+"_"+self.flight_date+\
+        l2_fname="BELUGA_VRS_L2_"+probe+"_"+self.flight+"_"+self.flight_date+\
             version_number+".nc"
         # Create fill values
         ds=ds.fillna(value=fill_value)
@@ -370,7 +370,7 @@ class BELUGA(Measurement_Platforms_STN):
         
     def get_flight_information(self):
         self.flight_infos=pd.read_csv(
-            self.main_path+"STN_BELUGA_flight_infos.csv",
+            self.main_path+"VRS_BELUGA_flight_infos.csv",
             index_col="Flight No")
         self.flight_infos["Start Time"]     = pd.to_datetime(
                 self.flight_infos["Start Time"], dayfirst=True)
@@ -461,7 +461,7 @@ class BELUGA(Measurement_Platforms_STN):
       if level=="l2": 
           fpath=self.main_path+\
              "/BELUGA_broadband_probe/temporary_data/"
-          fname="BELUGA_STN_L2_BP_"+self.flight+"_"+\
+          fname="BELUGA_VRS_L2_BP_"+self.flight+"_"+\
               self.flight_dates[self.flight]+".nc"
           file=fpath+fname   
           l2_ds=xr.open_dataset(file)
@@ -670,7 +670,7 @@ class BELUGA(Measurement_Platforms_STN):
             alt_grad_30s=alt_grad.rolling("30s",center=True).mean()
         else:
             # resolution of turb is higher, regrid to 1 Hz
-            alt_grad=rf_df[alt_var].resample("1s",center=True).mean().diff()
+            alt_grad=rf_df[alt_var].resample("1s").mean().diff()
             alt_grad_30s=alt_grad.rolling("30s",center=True).mean()
             
         snd_derivative_alt=alt_grad_30s.diff().rolling(
@@ -686,7 +686,7 @@ class BELUGA(Measurement_Platforms_STN):
         #0.005
         snd_dev_index=snd_derivative_alt[snd_derivative_alt.between(-.0075,.0075)].index
         con_index=con_alt_index.intersection(snd_dev_index)
-        gnd_index=con_index.intersection(rf_df[rf_df[alt_var]<30].index)
+        gnd_index=con_index.intersection(rf_df[rf_df[alt_var]<35].index)
 
         # Assign segment flags
         if not use_turb:    
@@ -775,7 +775,7 @@ class BELUGA(Measurement_Platforms_STN):
             print("Do the gnd index")
             for g,idx in enumerate(gnd_index):
                 performance.updt(len(gnd_index),g)
-                rf_df["segments"][rf_df.index.round("s")==idx]="near ground"
+                rf_df["segments"][rf_df.index.round("s")==idx]="near_ground"
         rf_df["segments"].loc[profile_peaks.index]="max"
         # Sometimes peaks are interrupted by constant altitude segments due to
         # thresholds in vertical velocities. Change them to peaks. 
@@ -1472,7 +1472,7 @@ class Meteorological_Probe(BELUGA):
         self.logger.info("Meta data (global attributes and variable attributes)"+\
             "added to L2 dataset.")
             
-        self.l2_ds=self.BELUGA_cls.add_STN_georeferences(self.l2_ds)
+        self.l2_ds=self.BELUGA_cls.add_VRS_georeferences(self.l2_ds)
         self.logger.info("Georeference data of Station Nord added to Dataset")
         self.l2_ds=self.BELUGA_cls.add_ABL_transition_type(self.l2_ds)
         self.logger.info("ABL transition type added to L2 dataset")
@@ -1889,7 +1889,7 @@ class Turbulence_Probe(BELUGA):
         self.logger.info("Meta data (global attributes and variable attributes)"+\
             "added to L2 dataset.")
             
-        self.l2_ds=self.BELUGA_cls.add_STN_georeferences(self.l2_ds)
+        self.l2_ds=self.BELUGA_cls.add_VRS_georeferences(self.l2_ds)
         self.logger.info("Georeference data of Station Nord added to Dataset")
         self.l2_ds=self.BELUGA_cls.add_ABL_transition_type(self.l2_ds)
         self.logger.info("ABL transition type added to L2 dataset")
@@ -2821,7 +2821,7 @@ class Broadband_Probe(BELUGA):
                 "Sonde stopped working during first profile. "+\
                     "Micro-SD Card was broken because of unkown reason. Repaired in the evening."
 
-        self.l2_ds=self.BELUGA_cls.add_STN_georeferences(self.l2_ds)
+        self.l2_ds=self.BELUGA_cls.add_VRS_georeferences(self.l2_ds)
         self.logger.info("Georeference data of Station Nord added to Dataset")
         self.l2_ds=self.BELUGA_cls.add_ABL_transition_type(self.l2_ds)
         self.logger.info("ABL transition type added to L2 dataset")
@@ -3349,7 +3349,7 @@ class Broadband_Probe(BELUGA):
         
         # Colour-code flight segmentation
         segmentation_classes=["ascent","descent","peak",
-                              "near ground", "const altitude"]
+                              "near_ground", "nearly_constant_altitude"]
         
         segmentation_cls_colors=["blue","orange","red",
                                  "sienna","green"]
@@ -3409,13 +3409,13 @@ class Broadband_Probe(BELUGA):
         self.logger.info("Figure saved as:"
                          +plot_path+fname)
 #%% Radiosondes   
-class Radiosondes(Measurement_Platforms_STN):
-    def __init__(self, Measurement_Platforms_STN,rf,
+class Radiosondes(Measurement_Platforms_VRS):
+    def __init__(self, Measurement_Platforms_VRS,rf,
             run_L1_processing=True,run_L2_processing=True,
             plot_processing=True):
-        self.station_name       = Measurement_Platforms_STN.station_name        
-        self.coordinates        = Measurement_Platforms_STN.coordinates
-        self.main_path          = Measurement_Platforms_STN.main_path
+        self.station_name       = Measurement_Platforms_VRS.station_name        
+        self.coordinates        = Measurement_Platforms_VRS.coordinates
+        self.main_path          = Measurement_Platforms_VRS.main_path
         self.flight_dates       = {
             "RFS1":"20240321","RFS2":"20240322","RFS3":"20240323",
             "RFS4":"20240331","RF01":"20240324","RF02":"20240324","RF03":"20240325",
@@ -3480,27 +3480,27 @@ class Radiosondes(Measurement_Platforms_STN):
                                 self.flight_infos["type"]=="clear to cloudy"]
         self.night_flights  = self.flight_infos.loc[\
                                 self.flight_infos["type"]=="Polar night to day"]    
-    def add_STN_georeferences(self,ds):
+    def add_VRS_georeferences(self,ds):
         
-        ds["STN_lat"]                           = self.coordinates["lat"]
-        ds["STN_lon"]                           = self.coordinates["lon"]
-        ds["STN_height"]                        = self.coordinates["height"]
+        ds["VRS_lat"]                           = self.coordinates["lat"]
+        ds["VRS_lon"]                           = self.coordinates["lon"]
+        ds["VRS_height"]                        = self.coordinates["height"]
         #Attributes:
         # add attributes based on CF-convention
-        ds["STN_lat"].attrs["standard_name"]    = "latitude"
-        ds["STN_lat"].attrs["long_name"]        = "latitude Station Nord"
-        ds["STN_lat"].attrs["units"]            = "degrees_north"
+        ds["VRS_lat"].attrs["standard_name"]    = "latitude"
+        ds["VRS_lat"].attrs["long_name"]        = "latitude Villum Research Station"
+        ds["VRS_lat"].attrs["units"]            = "degrees_north"
         
-        ds["STN_lon"].attrs["standard_name"]    = "longitude"
-        ds["STN_lon"].attrs["long_name"]        = "longitude Station Nord"
-        ds["STN_lon"].attrs["units"]            = "degrees_east"
+        ds["VRS_lon"].attrs["standard_name"]    = "longitude"
+        ds["VRS_lon"].attrs["long_name"]        = "longitude Villum Research Station"
+        ds["VRS_lon"].attrs["units"]            = "degrees_east"
         
         #ds["STN_height"].attrs["standard_name"] = "height"
-        ds["STN_height"].attrs["long_name"]     = "Station Nord height above mean sea level"
-        ds["STN_height"].attrs["units"]         = "m"
+        ds["VRS_height"].attrs["long_name"]     = "Villum Research Station height above mean sea level"
+        ds["VRS_height"].attrs["units"]         = "m"
         
         # add attributes based on CF-convention
-        ds.attrs["Location"] = "Station Nord: "+str(self.coordinates["lat"])+\
+        ds.attrs["Location"] = "Villum Research Station: "+str(self.coordinates["lat"])+\
             "°N, "+str(self.coordinates["lon"])+"°E."+\
             " Height above ground level: "+str(self.coordinates["height"])+" m"
         return ds 
@@ -3566,7 +3566,7 @@ class Radiosondes(Measurement_Platforms_STN):
             outp_path=self.raw_data_path+"/final_data/"
         
         os.makedirs(outp_path,exist_ok=True)
-        l2_fname="Radiosonde_STN_L2_"+self.flight_date+".nc"
+        l2_fname="Radiosonde_VRS_L2_"+self.flight_date+".nc"
         # Create fill values
         ds=ds.fillna(value=fill_value)
         nc_compression=dict(zlib=True,_FillValue=fill_value,
@@ -4084,7 +4084,7 @@ class Radiosondes(Measurement_Platforms_STN):
             del self.l2_ds["Dew [°C]"]              
         
         self.add_L2_meta_data()
-        self.l2_ds=self.add_STN_georeferences(self.l2_ds)
+        self.l2_ds=self.add_VRS_georeferences(self.l2_ds)
         self.l2_ds=self.add_ABL_transition_type(self.l2_ds)
         self.get_trajectory_id()
         if self.plot_processing:

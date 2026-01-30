@@ -7,7 +7,7 @@ Created on Thu Jul 24 13:49:45 2025
 #%% Global attributes
 TMP_met_global_attributes={
     "title": "Tethered balloon-borne meteorological profile measurement data"+\
-       " characterising the Arctic atmopsheric boundary layer at Station Nord", 
+       " characterising the Arctic atmopsheric boundary layer at Villum Research Station", 
     
     "authors":"Dorff, Henning; Siebert, Holger; Schaefer, Michael;" +\
         " Mueller, Joshua; Navale, Komal; Wu, Fan; Ehrlich, Andre;" +\
@@ -22,7 +22,7 @@ TMP_met_global_attributes={
     
     "abstract": "The tethered balloon system BELUGA (Balloon-bornE moduLar"+\
         " Utility for profilinG the lower Atmosphere) was operated during a"+\
-        " collaborative measurement campaign at Station Nord (Greenland) in"+\
+        " collaborative measurement campaign at Villum Research Station (Greenland) in"+\
         " spring 2024 (2024-03-19 to 2024-04-18). With the BELUGA system, frequent"+\
         " profiling of the Arctic atmospheric boundary layer was performed to examine"+\
         " transitions between typical states of the Arctic atmospheric" +\
@@ -35,7 +35,7 @@ TMP_met_global_attributes={
         " specified for each of the 28 flights from 24 March to 12 April 2024."+\
         " This TMP data is published together with the BP measurement data.",
         
-    "campaign":"Collaborative measurement campaign at Station Nord (Greenland) in"+\
+    "campaign":"Collaborative measurement campaign at Villum Research Station (Greenland) in"+\
         " spring 2024 (2024-03-19 to 2024-04-18)",
     
     "project": "Third Phase of ArctiC Amplification:"+\
@@ -79,12 +79,12 @@ TMP_met_global_attributes={
     "featureType":"TimeSeries",
     
     "keywords":"Atmospheric boundary layer (ABL); Arctic; BELUGA;"+\
-        " Thermodynamics; Lapse-rate; Station Nord; Tethered balloon;"+\
+        " Thermodynamics; Lapse-rate; Villum Research Station; Tethered balloon;"+\
         " vertical profile;" " in situ"}
     
 TMP_turb_global_attributes={
     "title": "Tethered balloon-borne turbulence profile measurement data"+\
-       " characterising the Arctic atmospheric boundary layer at Station Nord", 
+       " characterising the Arctic atmospheric boundary layer at Villum Research Station", 
     
     "authors":"Dorff, Henning; Schaefer, Michael; Siebert, Holger;" +\
         " Mueller, Joshua; Navale, Komal; Ehrlich, Andre;" +\
@@ -99,7 +99,7 @@ TMP_turb_global_attributes={
     
     "abstract": "The tethered balloon system BELUGA (Balloon-bornE moduLar"+\
         " Utility for profilinG the lower Atmosphere) was operated during a"+\
-        " collaborative measurement campaign at Station Nord (Greenland) in"+\
+        " collaborative measurement campaign at Villum Research Station (Greenland) in"+\
         " spring 2024 (2024-03-19 to 2024-04-18). With the BELUGA system, frequent"+\
         " profiling of the Arctic atmospheric boundary layer was performed to examine"+\
         " transitions between typical states of the Arctic atmospheric" +\
@@ -112,7 +112,7 @@ TMP_turb_global_attributes={
         " specified for each of the available flights from 24 March to 12 April 2024."+\
         " This TMP data is published together with the BP measurement data.",
         
-    "campaign":"Collaborative measurement campaign at Station Nord (Greenland) in"+\
+    "campaign":"Collaborative measurement campaign at Villum Research Station (Greenland) in"+\
         " spring 2024 (2024-03-19 to 2024-04-18)",
     
     "project": "Third Phase of ArctiC Amplification:"+\
@@ -154,13 +154,13 @@ TMP_turb_global_attributes={
     "featureType":"TimeSeries",
     
     "keywords":"Atmospheric boundary layer (ABL); Arctic; BELUGA;"+\
-        " Thermodynamics; Turbulence; Wind speed; Station Nord; Tethered balloon;"+\
+        " Thermodynamics; Turbulence; Wind speed; Villum Research Station; Tethered balloon;"+\
         " vertical profiles; in situ; (AC)³"}
     
 BP_global_attributes={
     "title": "Tethered balloon-borne broadband thermal-infrared"+\
         " irradiance profile measurement data"+\
-       " characterising the Arctic atmospheric boundary layer at Station Nord", 
+       " characterising the Arctic atmospheric boundary layer at Villum Research Station", 
     
     "authors":"Dorff, Henning; Schaefer, Michael; Siebert, Holger;"+\
         " Mueller, Joshua; Navale, Komal; Wu, Fan; Ehrlich, Andre;"+\
@@ -175,7 +175,7 @@ BP_global_attributes={
     
     "abstract": "The tethered balloon system BELUGA (Balloon-bornE moduLar"+\
         " Utility for profilinG the lower Atmosphere) was operated during a"+\
-        " collaborative measurement campaign at Station Nord (Greenland) in"+\
+        " collaborative measurement campaign at Villum Research Station (Greenland) in"+\
         " spring 2024 (2024-03-18 to 2024-04-18). BELUGA performed frequent"+\
         " profiling of the Arctic atmospheric boundary layer to examine"+\
         " transitions between typical states of the Arctic atmospheric"+\
@@ -188,7 +188,7 @@ BP_global_attributes={
         " each of the 28 flights from 24 March to 12 April 2024. The BP data is"+\
         " published with the TMP measurement data.",
         
-    "campaign":"Measurement campaign at Station Nord (Greenland) in"+\
+    "campaign":"Measurement campaign at Villum Research Station (Greenland) in"+\
         " spring 2024 (2024-03-19 to 2024-04-18)",
     
     "project": "Third Phase of ArctiC Amplification:"+\
@@ -234,7 +234,7 @@ BP_global_attributes={
     "featureType":"TimeSeries",
     
     "keywords":"Atmospheric boundary layer (ABL); Arctic; BELUGA;"+\
-        " Broadband radiation; Station Nord; Radiation fluxes; Tethered balloon;"+\
+        " Broadband radiation; Villum Research Station; Radiation fluxes; Tethered balloon;"+\
         " vertical profile",
     ##Domain attribute(s):O2A Registry URI: \
     ##https://hdl.handle.net/10013/sensor.936bd700-3456-4d3b-a9fa-674ff87e7735
@@ -242,7 +242,7 @@ BP_global_attributes={
     
 Radiosonde_global_attributes={
     "title": "Daily radiosonde profile measurement data complementing "+\
-    " balloon-borne measurements at Station Nord for characterising"+\
+    " balloon-borne measurements at Villum Research Station for characterising"+\
     " the Arctic atmospheric boundary layer", 
     
     "authors":"Dorff, Henning; Mueller, Joshua; Schaefer, Michael;"+\
@@ -256,7 +256,7 @@ Radiosonde_global_attributes={
         " joshua.mueller@uni-leipzig.de, siebert@tropos.de",
     
     "abstract": "During the collaborative measurement campaign conducted at"+\
-         " Station Nord (Greenland) in spring 2024 (2024-03-18 to 2024-04-18),"+\
+         " Villum Research Station (Greenland) in spring 2024 (2024-03-18 to 2024-04-18),"+\
          " tethered balloon-borne measurement flights were supported by daily"+\
          " radiosonde launches. The Level-2 (L2) radiosonde profiles provide"+\
          " supplementary information regarding the meteorological conditions"+\
@@ -267,7 +267,7 @@ Radiosonde_global_attributes={
          " transitions between its typical states .",
          
         
-    "campaign":"Measurement campaign at Station Nord (Greenland) in "+\
+    "campaign":"Measurement campaign at Villum Research Station (Greenland) in "+\
         "spring 2024 (2024-03-19 to 2024-04-18)",
     
     "project": "Third Phase of ArctiC Amplification:"+\
@@ -303,7 +303,7 @@ Radiosonde_global_attributes={
     "featureType":"trajectory",
     
     "keywords":"Arctic troposphere; Arctic; BELUGA; Radiosonde;"+\
-        "Thermodynamics; Station Nord; Vertical Profile; In situ; Troposphere"}
+        "Thermodynamics; Villum Research Station; Vertical Profile; In situ; Troposphere"}
     
 #%% Turbulence_meteorological_probe_met variable attributes
 TMP_met_var_attributes={

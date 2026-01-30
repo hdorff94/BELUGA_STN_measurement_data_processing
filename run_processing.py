@@ -2,8 +2,8 @@
 """
 This is the running script to perform the Level-0 to Level-2 
 processing of the BELUGA and radiosonde measurement data gathered
-during the comprehensive measurement campaign at Station Nord in 
-spring 2024.
+during the comprehensive measurement campaign at the Villum Research Station 
+(VRS) in Station Nord (Greenland) in spring 2024.
 
 Four instrument specfic L2- datasets can be obtained for the 
 BELUGA-borne Turbulent Meteorological Probe (with two components for 
@@ -30,15 +30,15 @@ sys.path.insert(2,main_path+"/plotting/")
 import Measurement_Platforms as Platforms
 
 # Open and allocate classes
-Platforms_STN_cls = Platforms.Measurement_Platforms_STN(
+Platforms_VRS_cls = Platforms.Measurement_Platforms_VRS(
                         main_path=main_path+"/BELUGA_data/")
-BELUGA_cls        = Platforms.BELUGA(Platforms_STN_cls)
+BELUGA_cls        = Platforms.BELUGA(Platforms_VRS_cls)
 BELUGA_cls.get_flight_information()
 
 # get the switches and processing definitions from 
 # the processing_config file
-import STN_processing_config
-config_dict=STN_processing_config.config_dict
+import VRS_processing_config
+config_dict=VRS_processing_config.config_dict
 if config_dict["final_processing"]:
     BELUGA_cls.temporary=False
 
@@ -87,13 +87,13 @@ if config_dict["process_TMP_turb"]:
 if config_dict["process_radiosonde"]:
     for rf in config_dict["radiosonde_flights_to_process"]:
         print(rf)
-        Radiosonde_STN    = Platforms.Radiosondes(
-            Platforms_STN_cls,rf=rf,
+        Radiosonde_VRS    = Platforms.Radiosondes(
+            Platforms_VRS_cls,rf=rf,
             run_L1_processing = config_dict["run_l1_processing"],
             run_L2_processing = config_dict["run_l2_processing"],
             plot_processing   = config_dict["plot_processing"])
-        Radiosonde_STN.temporary=False
-        Radiosonde_STN.run_processing(
+        Radiosonde_VRS.temporary=False
+        Radiosonde_VRS.run_processing(
             config_dict["version_number"],
             run_L1_processing=config_dict["run_l1_processing"],
             run_L2_processing=config_dict["run_l2_processing"])
