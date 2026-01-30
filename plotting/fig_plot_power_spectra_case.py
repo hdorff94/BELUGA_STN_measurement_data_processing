@@ -62,16 +62,16 @@ ps     = PSD(MSR_s,fs)  # calculatzing the power spectral density (normalized su
 sps    = PSD_Smooth(start_freq,n_bins,fs,ps[0],ps[1]) # smooth spectral density over logarithmic equidistant bins with n_bins per decade
  
 fig, ax = plt.subplots(figsize=(12,8),nrows = 1)
-plt.rcParams['font.size'] = 22
+plt.rcParams['font.size'] = 20.5
 
 title_str =  (flight + "  " +  date + " -- " + "15:02 - 15:22 UTC in 10 m AGL")
 
-ax.loglog(ps [0] ,ps[1],label=" raw spectrum",lw=2,color="mediumaquamarine")
+ax.loglog(ps [0] ,ps[1],label="raw spectrum",lw=2,color="mediumaquamarine")
 ax.loglog(sps[0],sps[1] ,'-',lw=7,color="white")
-ax.loglog(sps[0],sps[1] ,'o--',label=" smoothed spectrum",lw=4,color="darkgreen",zorder=2)
-ax.loglog(sps[0],sps[0]**(-5/3.)/1e3,label=" -5/3 - inertial subrange model",lw=3,color="saddlebrown")
+ax.loglog(sps[0],sps[1] ,'o--',label="averaged spectrum",lw=4,color="darkgreen",zorder=2)
+ax.loglog(sps[0],sps[0]**(-5/3.)/1e3,label="-5/3 - inertial subrange model",lw=3,color="saddlebrown")
 ax.set_ylabel(r'Power spectral density ($\rm m^2 s^{-2} Hz^{-1}$)')
-ax.set_xlabel(r'Frequency  [$\rm   Hz$]')
+ax.set_xlabel(r'Frequency  ($\rm   Hz$)')
 #ax.set_title("Power spectrum of calibrated hot-wire data " + "\n" + title_str )
 # Remove top and right spines
 ax.spines['top'].set_visible(False)

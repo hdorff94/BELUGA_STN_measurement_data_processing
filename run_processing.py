@@ -42,7 +42,10 @@ config_dict=STN_processing_config.config_dict
 if config_dict["final_processing"]:
     BELUGA_cls.temporary=False
 
+#-----------------------------------------------------------------------------#
 # Run processing
+#-----------------------------------------------------------------------------#
+# BP processing
 if config_dict["process_BP"]:
     for rf in config_dict["BP_flights_to_process"]:
         print("BP Process ",rf)
@@ -53,7 +56,8 @@ if config_dict["process_BP"]:
             plot_processing   = config_dict["plot_processing"])
         BELUGA_BP.run_processing(rf=rf,
             version_number=config_dict["version_number"])
-        
+
+# TMP met processing        
 if config_dict["process_TMP_met"]:
     for rf in config_dict["TMP_met_flights_to_process"]:
         print("TMP_met processing of:", rf)
@@ -66,6 +70,7 @@ if config_dict["process_TMP_met"]:
         BELUGA_TMP_met.run_processing(rf=rf,
             version_number = config_dict["version_number"])
 
+# TMP turb processing
 if config_dict["process_TMP_turb"]:
     for rf in config_dict["TMP_turb_flights_to_process"]:
         print("TMP_turb processing of:",rf)
@@ -78,6 +83,7 @@ if config_dict["process_TMP_turb"]:
         BELUGA_TMP_turb.run_processing(rf=rf,
             version_number=config_dict["version_number"])
 
+# Radiosonde
 if config_dict["process_radiosonde"]:
     for rf in config_dict["radiosonde_flights_to_process"]:
         print(rf)

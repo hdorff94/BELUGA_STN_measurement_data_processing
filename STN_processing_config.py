@@ -5,19 +5,19 @@ Created on Mon Oct 27 17:04:50 2025
 @author: u300737
 """
 config_dict={
-    "version_number":"_v2.5",
-    "BP_flights_to_process":["RF01","RF02",
+    "version_number":"_v2.6",
+    "BP_flights_to_process":[#"RF01","RF02",
         #"RF03","RF04","RF05","RF06",
         #"RF07","RF08","RF10","RF11",
-        #"RF12","RF13","RF14","RF15",
+        #"RF12","RF13","RF14",#"RF15",
         #"RF16","RF17","RF18","RF19",
         #"RF20","RF21","RF22","RF23",
         #"RF24",
         #"RF25","RF26","RF27",#"RF28",
         #"RF09" no available data
         ],
-    "TMP_met_flights_to_process":["RF01","RF02",
-        #"RF03",#"RF04","RF05","RF06","RF07","RF08",
+    "TMP_met_flights_to_process":["RF01","RF02","RF03",
+        #"RF04","RF05","RF06","RF07","RF08",
         #"RF10","RF11","RF12","RF13",
         #"RF14","RF15","RF16","RF17",
         #"RF18","RF19","RF20","RF21",
@@ -43,7 +43,7 @@ config_dict={
         ],
     
     # Instrument packages to be processed
-    "process_BP"        : True,
+    "process_BP"        : False,
     "process_TMP_met"   : True,
     "process_TMP_turb"  : False,
     "process_radiosonde": False,

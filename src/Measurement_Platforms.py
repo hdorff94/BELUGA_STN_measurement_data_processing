@@ -623,6 +623,7 @@ class BELUGA(Measurement_Platforms_STN):
             distance=500,width=2)
         alt_max_vals=df[alt_var].iloc[alt_max_idx]
         return alt_max_vals 
+    
     def find_max_rf_height(rf_df,alt_var="ALT"):
         return rf_df[alt_var].max()
     
@@ -658,27 +659,33 @@ class BELUGA(Measurement_Platforms_STN):
         # Classes of segmentation:
             # ascent, descent, peak, near-ground
         segmentation_classes=["ascent","descent","peak","max"
-                              "near_ground", "constant_alt"]
+                              "near_ground", "nearly_constant_altitude",
+                              "uncategorised"]
         # find profile peaks as first separation
         profile_peaks=self.find_profile_peaks(rf_df,alt_var=alt_var,
                                               use_turb=use_turb)
         # get gradients of altitude
         if not use_turb:
             alt_grad=rf_df[alt_var].diff()
-            alt_grad_30s=alt_grad.rolling("30s").mean()
+            alt_grad_30s=alt_grad.rolling("30s",center=True).mean()
         else:
             # resolution of turb is higher, regrid to 1 Hz
-            alt_grad=rf_df[alt_var].resample("1s").mean().diff()
-            alt_grad_30s=alt_grad.rolling("30s").mean()
+            alt_grad=rf_df[alt_var].resample("1s",center=True).mean().diff()
+            alt_grad_30s=alt_grad.rolling("30s",center=True).mean()
             
+        snd_derivative_alt=alt_grad_30s.diff().rolling(
+            "30s",center=True).mean()
             
         rf_df["segments"]="none"
         alt_grad_threshold=rate_threshold
         # Assign indices
         asc_index=alt_grad_30s[alt_grad_30s>alt_grad_threshold].index
         dsc_index=alt_grad_30s[alt_grad_30s<-1*alt_grad_threshold].index
-        con_index=alt_grad_30s[alt_grad_30s.between(-1*alt_grad_threshold,
+        con_alt_index=alt_grad_30s[alt_grad_30s.between(-1*alt_grad_threshold,
                                                     alt_grad_threshold)].index
+        #0.005
+        snd_dev_index=snd_derivative_alt[snd_derivative_alt.between(-.0075,.0075)].index
+        con_index=con_alt_index.intersection(snd_dev_index)
         gnd_index=con_index.intersection(rf_df[rf_df[alt_var]<30].index)
 
         # Assign segment flags
@@ -744,9 +751,9 @@ class BELUGA(Measurement_Platforms_STN):
             subset="DATETIME",keep="first")         
         rf_df["segments"].loc[added_rf_df.index]=added_rf_df["segment_category"]
         #---------------------------------------------------------#
-        peak_period=60
+        peak_period=15
         if use_turb:
-            peak_period=3000
+            peak_period=750
         for peak in profile_peaks.index:
             
             if not use_turb:
@@ -758,13 +765,13 @@ class BELUGA(Measurement_Platforms_STN):
                                    peak_idx+peak_period]="peak"
         
         if not use_turb:
-            rf_df["segments"].loc[con_index]="const altitude"
-            rf_df["segments"].loc[gnd_index]="near ground"
+            rf_df["segments"].loc[con_index]="nearly_constant_altitude"
+            rf_df["segments"].loc[gnd_index]="near_ground"
         else:
             print("Do the constant index")
             for c,idx in enumerate(con_index):
                 performance.updt(len(con_index),c)
-                rf_df["segments"][rf_df.index.round("s")==idx]="const altitude"
+                rf_df["segments"][rf_df.index.round("s")==idx]="nearly_constant_altitude"
             print("Do the gnd index")
             for g,idx in enumerate(gnd_index):
                 performance.updt(len(gnd_index),g)
@@ -775,8 +782,8 @@ class BELUGA(Measurement_Platforms_STN):
         for i in range(1, len(rf_df)):
             prev_segment = rf_df["segments"].iloc[i - 1]
             current_segment = rf_df["segments"].iloc[i]
-            # If previous segment was 'peak' and current is 'constant altitude', merge them
-            if prev_segment=='peak' and current_segment=='const altitude':
+            # If previous segment was 'peak' and current is 'nearly constant altitude', merge them
+            if prev_segment=='peak' and current_segment=='nearly_constant_altitude':
                 rf_df["segments"].iloc[i] = 'peak'
             # --> If previous was 'peak' and current is also 'peak',
             # it's a new 'peak' period, do nothing
@@ -860,7 +867,7 @@ class BELUGA(Measurement_Platforms_STN):
         ax1=z_b_fig.add_subplot(111)
         ax1.plot(self.l1_df["z_b"],color="orange",label="z_b")
         if sensor=="TMP_sonde":
-            ax1.plot(self.l1_df["ALT_R"]-30,color="grey",lw=1,ls="--",
+            ax1.plot(self.l1_df["ALT_R"]-31,color="grey",lw=1,ls="--",
                      label="GPS")
         ax1.grid()
         ax1.set_ylabel("Barometric height in m")
@@ -1303,20 +1310,45 @@ class Meteorological_Probe(BELUGA):
              HEAD_X_fil_540 = self.l1_df.HEAD_X_fil.apply(replace))
         self.l1_df  = self.l1_df.assign(
              HEAD_X_540     = self.l1_df.HEAD_X.apply(replace))
+
+    def thresholding_physical_ranges(self):
+        # Physical thresholding
+        # Temperature    
+        try:
+            bad_data_index=self.l1_df.loc[self.l1_df["T_R_fil"]>0].index
+            self.l1_df["quality_flag"].loc[bad_data_index]=3
+            self.l1_df[self.l1_df["T_R_fil"]>0] = np.nan
+        except:
+            self.l1_df[self.l1_df["T_R"]>0]     = np.nan
+            
+        # Relative humidity
+        self.l1_df[self.l1_df["RH_R"]>120]        = 120
+        # Wind speed
+        try:
+            self.l1_df[self.l1_df["S_S"]>20]         = np.nan
+        except:
+            self.logger.error("Windspeed could not be quality checked for this flight.")
+        self.logger.info("checked data for physically plausible thresholds (T<0°C,RH<120,VV<20")
+        
     def flag_for_quality(self):
         self.l1_df["quality_flag"]=0
+        
         if "PI_S" in self.l1_df.columns:
             self.l1_df["quality_flag"].loc[abs(self.l1_df["PI_S"])>15]=1
             #"ok_wind_pitch_affected"
         self.l1_df["quality_flag"].loc[\
             self.l1_df["interpolation_flag"]==True]=2
             #"ok_interpolated"
+        # 
         try:
             self.l1_df.loc[self.l1_df["T_R_fil"]==np.nan]=4
-        except:
+        except:            
             self.l1_df.loc[self.l1_df["T_R"]==np.nan]=4
+        
         del self.l1_df["interpolation_flag"]   
-    
+        # call physical plausible thresholding
+        self.thresholding_physical_ranges()
+        self.logger.info("data flagged for quality")
     def interpolate_and_fillna(self):
         # Create a mask of original non-NaN points
         if "T_R_fil" in self.l1_df.columns:
@@ -1395,6 +1427,8 @@ class Meteorological_Probe(BELUGA):
                            "RF14", "RF15","RF16","RF17","RF18",
                            "RF23","RF24","RF26"]:
             rate_threshold=.3
+        if self.flight=="RF01":
+            rate_threshold=.45
         segmented_df,self.profile_peaks  = \
             self.BELUGA_cls.segment_flight_sections(self.l2_df,
                 rate_threshold=rate_threshold,
@@ -1535,6 +1569,8 @@ class Meteorological_Probe(BELUGA):
         
         df_initial = self.l2_df.copy()
         df         = df_initial.copy()
+        only_asc_dsc_df=df_initial.loc["2024-03-24 13:00":"2024-03-24 13:50"]
+        
         df["z_b"][df["z_b"]==np.Inf]=np.nan
         # Do not separate between profile numbers anymore
         df["segments"][df_initial["segments"].str.contains(
@@ -1552,9 +1588,9 @@ class Meteorological_Probe(BELUGA):
         
         # Colour-code flight segmentation
         segmentation_classes=["ascent","descent","peak",
-                              "near ground", "const altitude"]
+                              "near_ground", "nearly_constant_altitude"]
         segmentation_legend=["ascent","descent","peak",
-                              "near ground", "constant altitude"]
+                              "near ground", "nearly constant altitude"]
         segmentation_cls_colors=["blue","orange","red",
                                  "sienna","green"]
         
@@ -1563,12 +1599,25 @@ class Meteorological_Probe(BELUGA):
             ax1.scatter(seg_df.index,seg_df,marker="s",s=40,
                         color=segmentation_cls_colors[s],
                         zorder=2,label=segmentation_legend[s])
-        
+            
         # Add extra marker for maximum heights    
         ax1.scatter(self.profile_peaks.index,
             self.profile_peaks, marker="o", s=100,
             color="red",edgecolor="k",zorder=3)
-        
+        # only ascent but not profile
+        #if rf=="RF01":
+            
+        #    ax1.scatter(only_asc_dsc_df.loc[\
+        #                    only_asc_dsc_df["segments"]=="ascent"].index,
+        #                only_asc_dsc_df["z_b"].loc[\
+        #                    only_asc_dsc_df["segments"]=="ascent"].values,
+        #                s=50,color="lightblue",zorder=2)
+            
+        #    ax1.scatter(only_asc_dsc_df.loc[\
+        #                    only_asc_dsc_df["segments"]=="descent"].index,
+        #                only_asc_dsc_df["z_b"].loc[\
+        #                    only_asc_dsc_df["segments"]=="descent"].values,
+        #                s=50,color="yellow",zorder=2)
         max_max=df["z_b"].dropna().max()
         ax1.scatter(df["z_b"].idxmax(),max_max,
                     marker="o",s=200,color="darkred",
@@ -1609,7 +1658,7 @@ class Meteorological_Probe(BELUGA):
         file_end=".png"
         fig_name+=file_end
         fname=plot_path+fig_name
-        fig.savefig(fname, bbox_inches="tight")
+        fig.savefig(fname, dpi=600, bbox_inches="tight")
         print("Figure saved as:", fname)
         self.logger.info("Figure saved as:"
                          +plot_path+fname)
@@ -2711,12 +2760,12 @@ class Broadband_Probe(BELUGA):
         if self.plot_processing:
             self.plot_inertia_correction_comparison()
             self.plot_differences_inertia_correction()
-    def flag_for_quality(self):
+    def flag_for_quality(self, ok_pitch=2.5,bad_pitch=5):
         self.irr_df["quality_flag"]=0
         self.irr_df["quality_flag"].loc[\
             self.irr_df["interpolation_flag"]==True]=1
-        self.irr_df["quality_flag"].loc[abs(self.irr_df["pitch"])>10]=2
-        self.irr_df["quality_flag"].loc[abs(self.irr_df["pitch"])>20]=3
+        self.irr_df["quality_flag"].loc[abs(self.irr_df["pitch"])>ok_pitch]=2
+        self.irr_df["quality_flag"].loc[abs(self.irr_df["pitch"])>bad_pitch]=3
         self.irr_df["quality_flag"].loc[\
             self.irr_df["interpolation_flag"]==True]=1
         self.irr_df["quality_flag"].loc[self.irr_df["F_net"]==np.nan]=4
