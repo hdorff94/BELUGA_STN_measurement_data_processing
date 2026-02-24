@@ -12,6 +12,6 @@ During processing, logger files are created to deliver information of all conduc
 The processing can be executed by the script
 ```python run_processing.py ```
 The instruments and research flights to be chosen for post-processing have to be set manually in the config-file "VRS_processing_config"
-and is then read by the processing routine
-
-This version of the processing code is a prelimary version.
+and is then read by the processing routine. The postprocessed Level-2 data can be checked and plotted via the jupyter notebook 
+"```python check_BELUGA_L2_STN_files.ipnyb ```". 
+In the plotting sub directory several routines can be found that created figures included in the corresponding ESSD data paper (Dorff et al. 2025, https://doi.org/10.5194/essd-2025-651)
