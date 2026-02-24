@@ -408,7 +408,7 @@ def plot_radiosonde(ds,rf,date):
         a.spines[['top', 'right']].set_visible(False)
     ax[0].set_ylabel("Height (m)")
     date_str = ds['time'].dt.strftime('%Y-%m-%d').values[0]
-    plt.savefig(os.getcwd()+"/../plots/"+rf+'//radiosonde_{date_str}.png',
+    plt.savefig(os.getcwd()+"/../BELUGA_data/plotting/test_processing/"+rf+'//radiosonde_{date_str}.png',
                 dpi=300)
 
 def plot_flight_segmentation(df_initial,rf,probe="TMP_met"):

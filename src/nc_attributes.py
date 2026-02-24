@@ -241,7 +241,7 @@ BP_global_attributes={
     }
     
 Radiosonde_global_attributes={
-    "title": "Daily radiosonde profile measurement data complementing "+\
+    "title": "Daily radiosonde profile measurement data complementing"+\
     " balloon-borne measurements at Villum Research Station for characterising"+\
     " the Arctic atmospheric boundary layer", 
     

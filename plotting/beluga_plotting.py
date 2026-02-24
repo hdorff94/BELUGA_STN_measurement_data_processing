@@ -158,6 +158,10 @@ def segment_flight_sections(rf_df,rate_threshold=0.7):
     performance=Performance.performance()
     segmentation_classes=["ascent","descent","peak","max"
                           "near_ground", "constant_alt"]
+    print(rf_df.columns)
+    
+    if not "ALT" in rf_df.columns:
+        rf_df["ALT"]=rf_df["zb"].copy()
     # find profile peaks as first separation
     profile_peaks=find_profile_peaks(rf_df)
     # get gradients of altitude
@@ -393,7 +397,9 @@ def advanced_flight_information(cpgn_df,BELUGA_cls,min_height=200,
         flight_infos["Max_height"]     = np.nan
         
     for rf in flight_infos.index:
-        rf_df=BELUGA_cls.open_met_data(rf=rf)
+        if rf=="RF09" or rf=="RF28":
+            continue
+        rf_df=BELUGA_cls.open_met_data(rf=rf,level="L1")
         # Drop interrupted indexes (NAT) and duplicates
         rf_df = rf_df.loc[rf_df.index.dropna()]
         rf_df = rf_df[~rf_df.index.duplicated()]

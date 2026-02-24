@@ -392,13 +392,21 @@ class BELUGA(Measurement_Platforms_VRS):
                                 self.flight_infos["type"]=="day-night"]
         #----------------------------------------------------------------------#
     
-    def open_met_data(self,rf="RF12"):
+    def open_met_data(self,rf="RF12",level="L2"):
         self.flight=rf
         print(self.main_path)
-        files=glob.glob(self.main_path+self.flight+"_*")
+        if level=="L2":
+            files=glob.glob(self.main_path+"/BELUGA_TMP_met_probe/final_data/"+\
+                            self.flight+"_*v2.6*")
+        if level=="L1":
+            file_name=self.main_path+"BELUGA_TMP_met_probe/temporary_data/"+\
+                            self.flight+"*.csv"
+            print(file_name)
+            files=glob.glob(file_name)
+        
         if not len(files)==1:
-            raise FileExistsError("either no or several files label with",
-                                  rf, "exist!")
+            print("either no or several files label with",rf, "exist!")
+            return pd.DataFrame()
         else:
             balloon_df=pd.read_csv(files[0],index_col=0)
             self.opened_file=files[0]
@@ -445,11 +453,11 @@ class BELUGA(Measurement_Platforms_VRS):
         elif level=="L2":
             self.raw_data_path      = self.main_path +\
            "/BELUGA_TMP_met_probe/raw_data/"
-            l2_path=self.raw_data_path+"/../temporary_data/"
-            version_number="v2.2.nc"
+            l2_path=self.raw_data_path+"/../final_data/"
+            version_number="v2.6.nc"
             l2_files=glob.glob(l2_path+"*"+version_number)
             l2_ds=xr.open_mfdataset(l2_files, combine="nested",concat_dim="time")
-            l2_df=l2_ds[["T","rh","z_b","vv"]].to_dataframe()
+            l2_df=l2_ds[["T","rh","z_b","vv","quality_flag"]].to_dataframe()
             l2_df.rename(columns={"T":"TEMP","rh":"RH","z_b":"ALT",
                                   "vv":"hor_vv"},inplace=True)
             cpgn_met_df=l2_df.copy()
@@ -466,7 +474,25 @@ class BELUGA(Measurement_Platforms_VRS):
           file=fpath+fname   
           l2_ds=xr.open_dataset(file)
           return l2_ds
-        
+    def open_all_rad_data(self,level="L2",version="v2.6"):
+        self.flights=self.flight_infos.index
+        data_list=[]
+        if level=="L2":
+            self.main_bp_data_path      = self.main_path +\
+                "/BELUGA_broadband_probe/"
+            l2_path=self.main_bp_data_path+"/final_data/"
+            print("check for files in :", l2_path)
+            version_number=version+".nc"
+            l2_files=glob.glob(l2_path+"*"+version_number)
+            l2_ds=xr.open_mfdataset(l2_files, combine="nested",concat_dim="time")
+            l2_df=l2_ds[["F_up","F_down","F_net","quality_flag"]].to_dataframe()
+            #l2_df.rename(columns={"T":"TEMP","rh":"RH","z_b":"ALT",
+            #                      "vv":"hor_vv"},inplace=True)
+            cpgn_rad_df=l2_df.copy()
+        else:
+            raise Exception("Wrong format given. Only L1 and L2 possible")
+        return cpgn_rad_df        
+    
     def create_artificial_tnirs(self,sample_size):
         # Set the random seed for reproducibility
         mean_30m = -20
@@ -791,9 +817,9 @@ class BELUGA(Measurement_Platforms_VRS):
         return rf_df, profile_peaks
     
     def segments_cf_conform_IDs(self,rf_df):
-        rf_df["flight_segments"]=0
-        rf_df["flight_segments"].loc[rf_df["segments"]=="near ground"]=0
-        rf_df["flight_segments"].loc[rf_df["segments"]=="const altitude"]=1
+        rf_df["flight_segments"]=-1
+        rf_df["flight_segments"].loc[rf_df["segments"]=="near_ground"]=0
+        rf_df["flight_segments"].loc[rf_df["segments"]=="nearly_constant_altitude"]=1
         rf_df["flight_segments"].loc[rf_df["segments"].str.contains("ascent")]=100
         rf_df["flight_segments"].loc[rf_df["segments"].str.contains("descent")]=-100
         rf_df["flight_segments"].loc[rf_df["segments"]=="peak"]=2
@@ -1423,12 +1449,20 @@ class Meteorological_Probe(BELUGA):
         self.BELUGA_cls.flight           = self.flight
         # Adapt the height change rate for specific flights
         rate_threshold=.6
-        if self.flight in ["RF03","RF04","RF06","RF08","RF10","RF11","RF13",
-                           "RF14", "RF15","RF16","RF17","RF18",
-                           "RF23","RF24","RF26"]:
-            rate_threshold=.3
-        if self.flight=="RF01":
+        if self.flight in ["RF01","RF07"]:
             rate_threshold=.45
+        
+        if self.flight in ["RF05","RF08","RF10","RF11","RF13",
+                           "RF15","RF16","RF19","RF21","RF22",
+                           "RF24","RF25"]:
+            rate_threshold=.3
+        #if self.flight in ["RF20"]:
+        #    rate_threshold=.15
+        if self.flight in ["RF04","RF06","RF14","RF17","RF18"]:
+            rate_threshold=.075
+        if self.flight in ["RF02","RF03","RF12","RF20","RF23","RF26","RF27"]:
+            rate_threshold=.15
+            
         segmented_df,self.profile_peaks  = \
             self.BELUGA_cls.segment_flight_sections(self.l2_df,
                 rate_threshold=rate_threshold,
@@ -1732,7 +1766,12 @@ class Meteorological_Probe(BELUGA):
         ax1.set_ylim([0,700])
         ax2.set_ylim([0,700])
         ax3.set_ylim([0,700])
-        
+        if self.flight=="RF15":
+            ax0.set_ylim([0,500])
+            ax1.set_ylim([0,500])
+            ax2.set_ylim([0,500])
+            ax3.set_ylim([0,500])
+                
         for axis in ['bottom','left']:
             ax1.spines[axis].set_linewidth(2)
             ax2.spines[axis].set_linewidth(2)
@@ -1921,9 +1960,13 @@ class Turbulence_Probe(BELUGA):
         # Adapt the height change rate for specific flights
         rate_threshold=.6
         if self.flight in ["RF03","RF04","RF06","RF08","RF10","RF13",
-                           "RF14", "RF15","RF16","RF17","RF18",
-                           "RF23","RF24","RF26"]:
+                           "RF15","RF16","RF19","RF21","RF22",
+                           "RF24","RF25","RF27"]:
             rate_threshold=.3
+        if self.flight in ["RF20","RF23","RF26","RF27"]:
+            rate_threshold=.15
+        if self.flight in ["RF14","RF17","RF18"]:
+            rate_threshold=.075
         segmented_df,self.profile_peaks  = \
             self.BELUGA_cls.segment_flight_sections(self.l2_df,
                 rate_threshold=rate_threshold,
@@ -1959,9 +2002,9 @@ class Turbulence_Probe(BELUGA):
         
         # Colour-code flight segmentation
         segmentation_classes=["ascent","descent","peak",
-                              "near ground", "const altitude"]
+                              "near_ground", "nearly_constant_altitude"]
         segmentation_legend=["ascent","descent","peak",
-                              "near ground", "constant altitude"]
+                              "near ground", "nearly constant altitude"]
         segmentation_cls_colors=["blue","orange","red",
                                  "sienna","green"]
         
@@ -2760,7 +2803,8 @@ class Broadband_Probe(BELUGA):
         if self.plot_processing:
             self.plot_inertia_correction_comparison()
             self.plot_differences_inertia_correction()
-    def flag_for_quality(self, ok_pitch=2.5,bad_pitch=5):
+    
+    def flag_for_quality(self, ok_pitch=7.5,bad_pitch=15):
         self.irr_df["quality_flag"]=0
         self.irr_df["quality_flag"].loc[\
             self.irr_df["interpolation_flag"]==True]=1
@@ -2937,12 +2981,14 @@ class Broadband_Probe(BELUGA):
         self.seg_alt_var                 = segm_alt_var
         self.BELUGA_cls.flight           = self.flight
         rate_threshold=.6
-        if self.flight in ["RF03","RF04","RF06","RF08","RF10","RF13",
-                           "RF14", "RF15","RF16","RF17","RF18",
-                           "RF23","RF24","RF26"]:
+        if self.flight in ["RF08","RF10","RF13",
+                           "RF15","RF16","RF19","RF21","RF22",
+                           "RF24","RF25",]:
             rate_threshold=.3
-        elif self.flight=="RF11":
-            rate_threshold=.1
+        elif self.flight in ["RF02","RF03","RF12","RF20","RF23","RF26","RF27"]:
+            rate_threshold=.15
+        elif self.flight in ["RF04","RF06","RF11","RF14","RF17","RF18","RF28"]:
+            rate_threshold=.07
         segmented_df,self.profile_peaks  = \
             self.BELUGA_cls.segment_flight_sections(self.l2_df,
                 rate_threshold=rate_threshold, alt_var=segm_alt_var)

@@ -73,5 +73,7 @@ Grid_data_cls     = Grid_data_STN.Gridded_data(main_path=main_path)
 CARRA             = Grid_data_STN.CARRA(Grid_data_cls)
 
 #%% CARRA plotting
-# April data
-CARRA_plotting.synoptic_carra_map(CARRA,None,main_path,dates=dates_april)
+# Standard BELUGA campaign
+CARRA_plotting.synoptic_carra_map(CARRA,None,main_path)
+# Different periods: April data
+#CARRA_plotting.synoptic_carra_map(CARRA,None,main_path,dates=dates_april)

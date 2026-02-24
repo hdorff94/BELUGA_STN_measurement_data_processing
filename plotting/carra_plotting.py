@@ -599,7 +599,7 @@ def synoptic_carra_map(CARRA_cls,carra_ds,main_path,
         
         
         if i == 0:
-            ax.text(x1-25, y1 - 2, "STN",
+            ax.text(x1-25, y1 - 2, "VRS",
             fontsize=14,transform=ccrs.PlateCarree(),color=STN_color,
             ha="center",bbox=dict(facecolor='whitesmoke',edgecolor="black",
                                   boxstyle='round',alpha=0.6))
@@ -714,7 +714,7 @@ def synoptic_carra_map(CARRA_cls,carra_ds,main_path,
     fig_name="fig10_CARRA_theta_"+str(theta_height)+"hPa_region_wind_"+\
                     str(wind_height)+"hPa_campaign_overview"
     plot_path=main_path+"/plots/campaign_overview/"
-    os.path.exists(plot_path,exist_ok=True)
+    os.makedirs(plot_path,exist_ok=True)
     file_end=".png"
     fig_name+=file_end
     fig.savefig(plot_path+fig_name,dpi=300,bbox_inches="tight")

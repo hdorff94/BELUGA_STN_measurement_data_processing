@@ -6,8 +6,8 @@ def get_flight_information(path=os.getcwd()):
     Returns the flight infos for all BELUGA STN flights as dataframe.
     Information is equivalent to Table 1 of ESSD manuscript.
     """
-    STN_flight_table_path=path+"/../BELUGA_data/"
-    flight_infos=pd.read_csv(STN_flight_table_path+"STN_BELUGA_flight_infos.csv",index_col="Flight No")
+    VRS_flight_table_path=path+"/../BELUGA_data/"
+    flight_infos=pd.read_csv(VRS_flight_table_path+"VRS_BELUGA_flight_infos.csv",index_col="Flight No")
     flight_infos["Start Time"]     = pd.to_datetime(flight_infos["Start Time"], dayfirst=True)
     flight_infos["End Time"]       = pd.to_datetime(flight_infos["End Time"], dayfirst=True)
     flight_infos["type"]           = "uncategorized"
